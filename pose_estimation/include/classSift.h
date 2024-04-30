@@ -42,7 +42,7 @@ public:
         cv::createTrackbar("Sigma", "SIFT Parameters", &sigma, 100, onTrackbar, this);
     };
 
-    int siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints)
+    int siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints, std::vector<cv::KeyPoint> &storageKeypoints)
     {
         std::vector<cv::KeyPoint> keypoints;
         cv::Mat descriptors;
@@ -73,15 +73,27 @@ public:
         // safe image with keypoints
         cv::drawKeypoints(image, keypoints, img_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-        int idx = 0;
-        for (const auto &kp : keypoints)
-        {
-            cv::putText(img_with_keypoints, std::to_string(idx), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 255, 0), 1);
-            idx++;
-        }
-
         cv::imwrite("/home/fhtw_user/msvr/pose_estimation/sift_features.jpg", img_with_keypoints);
 
+        storageKeypoints = keypoints;
+
+        return 0;
+    };
+
+    int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints)
+    {
+        int idx = 0;
+        //int offset = 0;
+        for (const auto &kp : keypoints)
+        {
+            //cv::Point2f text_position = kp.pt; // Create a copy of kp.pt for positioning text
+            //// Modify text_position instead of kp.pt
+            //text_position.x += offset; // Offset text slightly right to avoid overlap
+            //text_position.y += offset; // Offset text slightly down
+            cv::putText(img_with_keypoints, std::to_string(idx), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 255, 0), 1);
+            idx++;
+            //offset += 5;
+        }
         return 0;
     };
 
