@@ -14,12 +14,11 @@ public:
     // destructor
     ~SIFT(){};
 
-
     void updateSift()
     {
         // Convert int parameters to their appropriate float equivalents
-        sift = cv::SiftFeatureDetector::create(nfeatures, nOctaveLayers, (float) contrastThreshold / 100.0f, (float) edgeThreshold / 100.0f,
-        (float) sigma / 100.0f);
+        sift = cv::SiftFeatureDetector::create(nfeatures, nOctaveLayers, (float)contrastThreshold / 100.0f, (float)edgeThreshold / 100.0f,
+                                               (float)sigma / 100.0f);
     };
 
     static void onTrackbar(int, void *userdata)
@@ -36,12 +35,11 @@ public:
         cv::namedWindow("SIFT Parameters", cv::WINDOW_NORMAL);
 
         // Create trackbars
-        cv::createTrackbar("nFeatures",             "SIFT Parameters",  &nfeatures,         100,    onTrackbar, this);
-        cv::createTrackbar("nOctaveLayers",         "SIFT Parameters",  &nOctaveLayers,     8,      onTrackbar, this);
-        cv::createTrackbar("Contrast Threshold",    "SIFT Parameters",  &contrastThreshold, 100,    onTrackbar, this);
-        cv::createTrackbar("Edge Threshold",        "SIFT Parameters",  &edgeThreshold,     100,    onTrackbar, this);
-        cv::createTrackbar("Sigma",                 "SIFT Parameters",  &sigma,             100,    onTrackbar, this);
-
+        cv::createTrackbar("nFeatures", "SIFT Parameters", &nfeatures, 400, onTrackbar, this);
+        cv::createTrackbar("nOctaveLayers", "SIFT Parameters", &nOctaveLayers, 8, onTrackbar, this);
+        cv::createTrackbar("Contrast Threshold", "SIFT Parameters", &contrastThreshold, 100, onTrackbar, this);
+        cv::createTrackbar("Edge Threshold", "SIFT Parameters", &edgeThreshold, 100, onTrackbar, this);
+        cv::createTrackbar("Sigma", "SIFT Parameters", &sigma, 100, onTrackbar, this);
     };
 
     int siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints)
@@ -50,7 +48,7 @@ public:
         cv::Mat descriptors;
         sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
 
-        // Deskriptoren in einer CSV-Datei speichern
+        // safe descriptors in csv file
         std::ofstream file("/home/fhtw_user/msvr/pose_estimation/descriptors.csv");
         if (file.is_open())
         {
@@ -65,15 +63,22 @@ public:
                 file << "\n";
             }
             file.close();
-            std::cout << "Deskriptoren wurden in 'descriptors.csv' gespeichert." << std::endl;
+            std::cout << "descriptors saved in 'descriptors.csv'" << std::endl;
         }
         else
         {
-            std::cerr << "Datei konnte nicht erstellt werden." << std::endl;
+            std::cerr << "failed saveing descriptors" << std::endl;
         }
 
-        // Ergebnisbild speichern
+        // safe image with keypoints
         cv::drawKeypoints(image, keypoints, img_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+
+        int idx = 0;
+        for (const auto &kp : keypoints)
+        {
+            cv::putText(img_with_keypoints, std::to_string(idx), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 255, 0), 1);
+            idx++;
+        }
 
         cv::imwrite("/home/fhtw_user/msvr/pose_estimation/sift_features.jpg", img_with_keypoints);
 
@@ -82,5 +87,5 @@ public:
 
 private:
     cv::Ptr<cv::SiftFeatureDetector> sift;
-    int nfeatures = 0, nOctaveLayers = 3, contrastThreshold = 4, edgeThreshold = 6, sigma = 16;
+    int nfeatures = 45, nOctaveLayers = 6, contrastThreshold = 20, edgeThreshold = 40, sigma = 55;
 };

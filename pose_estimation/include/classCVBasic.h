@@ -38,5 +38,5 @@ public:
 
 private:
     // image path
-    const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/sge.png";
+    const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/bart.png";
 };
