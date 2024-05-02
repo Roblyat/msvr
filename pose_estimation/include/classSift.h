@@ -80,24 +80,17 @@ public:
         return 0;
     };
 
-    int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints)
+    int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
     {
-        int idx = 0;
-        //int offset = 0;
-        for (const auto &kp : keypoints)
-        {
-            //cv::Point2f text_position = kp.pt; // Create a copy of kp.pt for positioning text
-            //// Modify text_position instead of kp.pt
-            //text_position.x += offset; // Offset text slightly right to avoid overlap
-            //text_position.y += offset; // Offset text slightly down
-            cv::putText(img_with_keypoints, std::to_string(idx), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.75, cv::Scalar(0, 255, 0), 1);
-            idx++;
-            //offset += 5;
+        if (keypointIndex < keypoints.size()) {
+            const auto &kp = keypoints[keypointIndex];
+            cv::putText(img_with_keypoints, std::to_string(keypointIndex), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.25, cv::Scalar(0, 255, 0), 1);
         }
+
         return 0;
-    };
+    }
 
 private:
     cv::Ptr<cv::SiftFeatureDetector> sift;
-    int nfeatures = 45, nOctaveLayers = 6, contrastThreshold = 20, edgeThreshold = 40, sigma = 55;
+    int nfeatures = 400, nOctaveLayers = 5, contrastThreshold = 8, edgeThreshold = 20, sigma = 55;
 };

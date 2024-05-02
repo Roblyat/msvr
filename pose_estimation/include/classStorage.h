@@ -13,6 +13,7 @@ public:
     cv::Mat image;
     cv::Mat gray_scaled_image;
     cv::Mat img_with_keypoints;
+    cv::Mat undistortImage;
     std::vector<cv::KeyPoint> keypoints;
     // //vector for channels BGR
     // std::vector<cv::Mat> channelsBGR;

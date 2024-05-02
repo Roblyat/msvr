@@ -1,34 +1,44 @@
-//main.cpp
 #include "../include/classCVBasic.h"
 #include "../include/classStorage.h"
 #include "../include/classSift.h"
 
-//storage
 Storage storage;
 
-int main(){
+int main()
+{
+    size_t keypointIndex = 0;
 
-    SIFT SIFT;
-    SIFT.loadImage(storage.image);
-    SIFT.siftExtract(storage.image, storage.img_with_keypoints, storage.keypoints);
-    
-    while (true) {
-        //SIFT.trackbars();
-        //SIFT.grayScale(storage.image, storage.gray_scaled_image);
+    SIFT sift;
+    sift.loadImage(storage.image);
+    sift.undistort(storage.image, storage.undistortImage);
+    sift.siftExtract(storage.undistortImage, storage.img_with_keypoints, storage.keypoints);
 
-        // Ergebnis anzeigen
+    while (true)
+    {   
+        //trackbars
+        // sift.trackbars();
         cv::namedWindow("SIFT Features", cv::WINDOW_NORMAL);
-        //cv::imshow("sge.png", storage.image);
-        cv::imshow("SIFT Features", storage.img_with_keypoints);
 
-        SIFT.showKeyNumbers(storage.keypoints, storage.img_with_keypoints);
+        // Make a fresh copy of the base image each time
+        cv::Mat displayImage = storage.img_with_keypoints.clone();
 
-        cv::waitKey(0); // Warten, bis eine Taste gedrückt wird
+        // Show features
+        sift.showKeyNumbers(storage.keypoints, displayImage, keypointIndex);
+        cv::imshow("SIFT Features", displayImage);
 
-        char key = (char) cv::waitKey(30);
-        if (key == 27) break; 
+        int key = cv::waitKey(0); // Wait for key press
+
+        if (key == 27)
+            break; // Exit on ESC
+        if (keypointIndex < storage.keypoints.size() - 1)
+        {
+            keypointIndex++; // Increment to show the next keypoint
+        }
+        else
+        {
+            keypointIndex = 0; // Optionally reset to start over
+        }
     };
 
     return 0;
-
-};
+}
