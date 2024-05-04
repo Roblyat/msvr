@@ -6,13 +6,23 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <fstream>
+#include "../include/classStorage.h"
 
-class CVBasic
+class CVBasic : public Storage
 {
 
 public:
+    cv::VideoCapture cap;
     // constructor
-    CVBasic(){};
+    CVBasic()
+    {
+        cv::VideoCapture cap(0); // Check this index is correct for your camera
+        if (!cap.isOpened())
+        {
+            std::cerr << "Error opening video stream or file" << std::endl;
+            return;
+        }
+    };
     // destructor
     ~CVBasic(){};
 
@@ -41,6 +51,18 @@ public:
         cv::undistort(image, undistortImage, cameraMatrix, distCoeffs);
     };
 
+    void startCamera(cv::Mat &cameraImage)
+    {
+        if (cap.isOpened())
+        {
+            cap >> cameraImage;
+            if (cameraImage.empty())
+            {
+                std::cerr << "Received empty frame." << std::endl;
+            }
+        }
+    }
+
 private:
     // image path
     const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/webcam/tp3.jpg";
@@ -49,5 +71,5 @@ private:
                             0.000000, 907.672223, 394.805003,
                             0.000000, 0.000000, 1.000000);
 
-    cv::Mat distCoeffs = (cv::Mat_<double>(1,5) << 0.119547, -0.187557, 0.000381, -0.000114, 0.000000);
+    cv::Mat distCoeffs = (cv::Mat_<double>(1, 5) << 0.119547, -0.187557, 0.000381, -0.000114, 0.000000);
 };

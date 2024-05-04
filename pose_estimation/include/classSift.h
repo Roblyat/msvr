@@ -43,7 +43,7 @@ public:
     };
 
     int siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints, std::vector<cv::KeyPoint> &storageKeypoints)
-    {
+    {   
         std::vector<cv::KeyPoint> keypoints;
         cv::Mat descriptors;
         sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
@@ -81,7 +81,7 @@ public:
     };
 
     int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
-    {
+    {   
         if (keypointIndex < keypoints.size()) {
             const auto &kp = keypoints[keypointIndex];
             cv::putText(img_with_keypoints, std::to_string(keypointIndex), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.25, cv::Scalar(0, 255, 0), 1);

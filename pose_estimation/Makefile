@@ -2,7 +2,7 @@ CXX = g++
 CXXFLAGS = -Wall -g
 INCLUDES = -I/usr/local/include/opencv4
 LFLAGS = -L/usr/local/lib
-LIBS = -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc -lopencv_features2d -lopencv_xfeatures2d
+LIBS = -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc -lopencv_features2d -lopencv_xfeatures2d -lopencv_videoio
 SRCS = src/main.cpp
 OBJS = $(SRCS:.cpp=.o)
 MAIN = main
