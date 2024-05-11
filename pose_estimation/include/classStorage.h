@@ -16,10 +16,14 @@ public:
     cv::Mat gray_scaled_image;
     cv::Mat img_with_keypoints;
     cv::Mat undistortImage;
+    cv::Mat descriptors;
     std::vector<cv::KeyPoint> keypoints;
 
     cv::Mat cameraImage;
     cv::Mat undistortCameraImage;
     cv::Mat camera_img_with_keypoints;
+    cv::Mat cameraDescriptors;
     std::vector<cv::KeyPoint> cameraKeypoints;
+
+    std::vector<cv::DMatch> goodMatches;
 };
