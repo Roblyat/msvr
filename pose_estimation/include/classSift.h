@@ -82,7 +82,7 @@ public:
 
     void matchDescriptors(const cv::Mat &descriptors, const cv::Mat &cameraDescriptors, std::vector<cv::DMatch> &goodMatches,
         std::vector<cv::KeyPoint> &keypoints, std::vector<cv::KeyPoint> &cameraKeypoints, cv::Mat &img_with_keypoints,
-        cv::Mat &camera_img_with_keypoints, double matchThreshold = 50.0)
+        cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, double matchThreshold = 50.0)
     {
         std::vector<cv::DMatch> matches;
         cv::BFMatcher matcher(cv::NORM_L2); // Using L2 norm, adjust if needed
@@ -91,7 +91,6 @@ public:
         std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b)
                   { return a.distance < b.distance; });
 
-        cv::Mat img_matches;
         cv::drawMatches(img_with_keypoints, keypoints, camera_img_with_keypoints, cameraKeypoints, matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
                         std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
