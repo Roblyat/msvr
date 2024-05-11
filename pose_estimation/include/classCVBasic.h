@@ -13,16 +13,9 @@ class CVBasic : public Storage
 
 public:
     // constructor
-    CVBasic(){
-        // cv::VideoCapture cap(0); // Check this index is correct for your camera
-        // if (!cap.isOpened())
-        //{
-        //     std::cerr << "Error opening video stream or file" << std::endl;
-        //     return;
-        // }
-    };
+    CVBasic() {};
     // destructor
-    ~CVBasic(){};
+    ~CVBasic() {};
 
     // methods
     // load image & use clone to process

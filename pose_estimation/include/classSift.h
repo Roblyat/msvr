@@ -42,33 +42,36 @@ public:
         cv::createTrackbar("Sigma", "SIFT Parameters", &sigma, 100, onTrackbar, this);
     };
 
-    int siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors)
+    int siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, bool safeDescriptors)
     {
         // std::vector<cv::KeyPoint> keypoints;
         // cv::Mat descriptors;
         sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
 
         // safe descriptors in csv file
-        std::ofstream file("/home/fhtw_user/msvr/pose_estimation/descriptors.csv");
-        if (file.is_open())
+        if (safeDescriptors)
         {
-            for (int i = 0; i < descriptors.rows; ++i)
+            std::ofstream file("/home/fhtw_user/msvr/pose_estimation/descriptors.csv");
+            if (file.is_open())
             {
-                for (int j = 0; j < descriptors.cols; ++j)
+                for (int i = 0; i < descriptors.rows; ++i)
                 {
-                    file << descriptors.at<float>(i, j);
-                    if (j < descriptors.cols - 1)
-                        file << ",";
-                }
-                file << "\n";
+                    for (int j = 0; j < descriptors.cols; ++j)
+                    {
+                        file << descriptors.at<float>(i, j);
+                        if (j < descriptors.cols - 1)
+                            file << ",";
+                    };
+                    file << "\n";
+                };
+                file.close();
+                std::cout << "descriptors saved in 'descriptors.csv'" << std::endl;
             }
-            file.close();
-            std::cout << "descriptors saved in 'descriptors.csv'" << std::endl;
-        }
-        else
-        {
-            std::cerr << "failed saveing descriptors" << std::endl;
-        }
+            else
+            {
+                std::cerr << "failed saveing descriptors" << std::endl;
+            };
+        };
 
         // safe image with keypoints
         cv::drawKeypoints(image, keypoints, img_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -81,8 +84,8 @@ public:
     };
 
     void matchDescriptors(const cv::Mat &descriptors, const cv::Mat &cameraDescriptors, std::vector<cv::DMatch> &goodMatches,
-        std::vector<cv::KeyPoint> &keypoints, std::vector<cv::KeyPoint> &cameraKeypoints, cv::Mat &img_with_keypoints,
-        cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, double matchThreshold = 50.0)
+                          std::vector<cv::KeyPoint> &keypoints, std::vector<cv::KeyPoint> &cameraKeypoints, cv::Mat &img_with_keypoints,
+                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, double matchThreshold = 50.0)
     {
         std::vector<cv::DMatch> matches;
         cv::BFMatcher matcher(cv::NORM_L2); // Using L2 norm, adjust if needed
@@ -102,6 +105,25 @@ public:
                 goodMatches.push_back(match);
             }
         }
+
+        std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
+        for (const auto &match : goodMatches)
+        {
+            int trainIdx = match.trainIdx; // Index of the descriptor in the training set
+            if (trainIdx < descriptors.rows)
+            {
+                const cv::Mat descriptor = descriptors.row(trainIdx);
+                for (int j = 0; j < descriptor.cols; j++)
+                {
+                    outFile << descriptor.at<float>(0, j);
+                    if (j < descriptor.cols - 1)
+                        outFile << ",";
+                }
+                outFile << "\n";
+            }
+        }
+        outFile.close();
+        std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
 
         std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
     };
