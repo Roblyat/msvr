@@ -32,7 +32,8 @@ int main()
         siftCamera.undistort(storage.cameraImage, storage.undistortCameraImage);
         siftCamera.siftExtract(storage.undistortCameraImage, storage.camera_img_with_keypoints, storage.cameraKeypoints, storage.cameraDescriptors, false);
         siftCamera.matchDescriptors(storage.descriptors, storage.cameraDescriptors,
-                                    storage.goodMatches, storage.keypoints, storage.cameraKeypoints, storage.img_with_keypoints, storage.camera_img_with_keypoints, storage.img_matches);
+                                    storage.goodMatches, storage.keypoints, storage.cameraKeypoints, storage.img_with_keypoints,
+                                    storage.camera_img_with_keypoints, storage.img_matches, storage.oldSize, true);
 
         cv::imshow("Camera Features", storage.img_matches);
 

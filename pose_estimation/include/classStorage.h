@@ -26,5 +26,6 @@ public:
     std::vector<cv::KeyPoint> cameraKeypoints;
 
     std::vector<cv::DMatch> goodMatches;
+    size_t oldSize;
     cv::Mat img_matches;
 };

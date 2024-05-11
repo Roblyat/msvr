@@ -85,7 +85,8 @@ public:
 
     void matchDescriptors(const cv::Mat &descriptors, const cv::Mat &cameraDescriptors, std::vector<cv::DMatch> &goodMatches,
                           std::vector<cv::KeyPoint> &keypoints, std::vector<cv::KeyPoint> &cameraKeypoints, cv::Mat &img_with_keypoints,
-                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, double matchThreshold = 50.0)
+                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, size_t oldSize, bool safeActiveSet,
+                          double matchThreshold = 50.0)
     {
         std::vector<cv::DMatch> matches;
         cv::BFMatcher matcher(cv::NORM_L2); // Using L2 norm, adjust if needed
@@ -97,7 +98,6 @@ public:
         cv::drawMatches(img_with_keypoints, keypoints, camera_img_with_keypoints, cameraKeypoints, matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
                         std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-        goodMatches.clear();
         for (const auto &match : matches)
         {
             if (match.distance < matchThreshold)
@@ -106,26 +106,34 @@ public:
             }
         }
 
-        std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
-        for (const auto &match : goodMatches)
+        if (safeActiveSet)
         {
-            int trainIdx = match.trainIdx; // Index of the descriptor in the training set
-            if (trainIdx < descriptors.rows)
+            if (goodMatches.size() > oldSize)
             {
-                const cv::Mat descriptor = descriptors.row(trainIdx);
-                for (int j = 0; j < descriptor.cols; j++)
+                std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
+                for (const auto &match : goodMatches)
                 {
-                    outFile << descriptor.at<float>(0, j);
-                    if (j < descriptor.cols - 1)
-                        outFile << ",";
+                    int trainIdx = match.trainIdx; // Index of the descriptor in the training set
+                    if (trainIdx < descriptors.rows)
+                    {
+                        const cv::Mat descriptor = descriptors.row(trainIdx);
+                        for (int j = 0; j < descriptor.cols; j++)
+                        {
+                            outFile << descriptor.at<float>(0, j);
+                            if (j < descriptor.cols - 1)
+                                outFile << ",";
+                        }
+                        outFile << "\n";
+                    }
                 }
-                outFile << "\n";
-            }
-        }
-        outFile.close();
-        std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
+                oldSize = goodMatches.size();
+                std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
+                outFile.close();
+            };
 
-        std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
+            std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
+            goodMatches.clear();
+        };
     };
 
     int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
