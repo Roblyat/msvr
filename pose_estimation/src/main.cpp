@@ -13,7 +13,7 @@ int main()
     siftTrain.siftExtract(storage.undistortImage, storage.img_with_keypoints, storage.keypoints, storage.descriptors, true);
 
     cv::namedWindow("Camera Features", cv::WINDOW_NORMAL);
-    // cv::namedWindow("match threshold", cv::WINDOW_NORMAL);
+    cv::namedWindow("match threshold", cv::WINDOW_NORMAL);
 
     char key = 0;
     cv::VideoCapture cap(0);
@@ -22,7 +22,7 @@ int main()
     {   
         // siftTrain.trackbars("train parameters");
         // siftCamera.trackbars("camera parameters");
-        
+
         cap >> storage.cameraImage;
         if (storage.cameraImage.rows <= 0)
         {
