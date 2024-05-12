@@ -52,15 +52,6 @@ public:
             std::ofstream file("/home/fhtw_user/msvr/pose_estimation/descriptors.csv");
             if (file.is_open())
             {
-                // Writing the header line with descriptor column names
-                file << "Index"; // Include an index header
-                for (int j = 0; j < descriptors.cols; ++j)
-                {
-                    file << ",D" << j; // Append each descriptor header like D0, D1, ..., D127
-                }
-                file << "\n"; // End the header line
-
-                // Writing the descriptor data
                 for (int i = 0; i < descriptors.rows; ++i)
                 {
                     file << i; // Start with the row index
@@ -97,6 +88,9 @@ public:
 
         std::vector<cv::DMatch> matches;
         cv::BFMatcher matcher(cv::NORM_L2); // Using L2 norm, adjust if needed
+        if(!useHandpicked)
+            matcher.match(descriptors, cameraDescriptors, matches);
+
         if (useHandpicked)
         {
             std::ifstream file("/home/fhtw_user/msvr/pose_estimation/threshold.csv");
@@ -157,15 +151,15 @@ public:
             {
                 cameraDescriptors.convertTo(cameraDescriptors, CV_32F);
             }
-
+            
             std::cout << "picked keypoints: " << handpickedKeypoints.size() << std::endl;
             std::cout << "camera keypoints: " << cameraKeypoints.size() << std::endl;
             // Here you can perform the matching or further processing
             std::vector<cv::DMatch> newMatches;
             matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
 
-            // cv::drawMatches(img_with_keypoints, handpickedKeypoints, camera_img_with_keypoints, cameraKeypoints, newMatches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
-            //                 std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+            cv::drawMatches(img_with_keypoints, handpickedKeypoints, camera_img_with_keypoints, cameraKeypoints, newMatches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
+                            std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
         }
 
         std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b)
