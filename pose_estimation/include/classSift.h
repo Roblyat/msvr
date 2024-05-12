@@ -174,6 +174,15 @@ public:
         if (safeThreshold)
         {
             std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/threshold.csv");
+
+            // Write header row
+            outFile << "Index,X,Y,Size,Angle,Response,Octave,ClassID";
+            for (int i = 0; i < 128; i++)
+            { // Assuming you have 128 descriptors
+                outFile << ",D" << i;
+            }
+            outFile << "\n";
+
             for (const auto &match : goodMatches)
             {
                 int queryIdx = match.queryIdx; // Index of the descriptor in the training set
@@ -199,7 +208,7 @@ public:
 
             std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
             goodMatches.clear();
-        }
+        };
     };
 
     int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
