@@ -72,7 +72,7 @@ public:
 
 private:
     // image path
-    const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/webcam/tp3.jpg";
+    const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/webcam/tp6.jpg";
 
     cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 913.086760, 0.000000, 624.176299,
                             0.000000, 907.672223, 394.805003,
