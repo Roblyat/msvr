@@ -25,8 +25,10 @@ public:
     cv::Mat camera_img_with_keypoints;
     cv::Mat cameraDescriptors;
     std::vector<cv::KeyPoint> cameraKeypoints;
+    std::vector<cv::KeyPoint> storePickedKP;
 
     std::vector<cv::DMatch> goodMatches;
+    std::vector<cv::DMatch> newMatches;
     size_t oldSize;
     cv::Mat img_matches;
 };

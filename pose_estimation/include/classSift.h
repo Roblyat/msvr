@@ -89,20 +89,21 @@ public:
 
     void matchDescriptors(const cv::Mat &descriptors, const cv::Mat &cameraDescriptors, std::vector<cv::DMatch> &goodMatches,
                           std::vector<cv::KeyPoint> &keypoints, std::vector<cv::KeyPoint> &cameraKeypoints, cv::Mat &img_with_keypoints,
-                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, cv::Mat &img_with_handpickedKeypoints, size_t oldSize,
-                          bool safeThreshold, bool variateThreshold, bool useHandpicked, bool showAllMatches)
+                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, cv::Mat &img_with_handpickedKeypoints, 
+                          std::vector<cv::DMatch> newMatches, std::vector<cv::KeyPoint> &storePickedKP,
+                          size_t oldSize, bool safeThreshold, bool variateThreshold, bool useHandpicked, bool showAllMatches)
     {
         if (variateThreshold)
             cv::createTrackbar("matchThreshold", "match threshold", &matchThreshold, 400, onTrackbar, this);
 
         std::vector<cv::DMatch> matches;
-        cv::BFMatcher matcher(cv::NORM_L2); // Using L2 norm, adjust if needed
+        cv::BFMatcher matcher(cv::NORM_L2);
         if (!useHandpicked)
             matcher.match(descriptors, cameraDescriptors, matches);
 
         if (useHandpicked)
         {
-            std::ifstream file("/home/fhtw_user/msvr/pose_estimation/threshold.csv");
+            std::ifstream file("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
             std::vector<std::vector<float>> data;
             std::string line;
             bool isFirstLine = true; // Flag to skip the first line (header)
@@ -131,7 +132,6 @@ public:
             }
 
             cv::Mat handpickedDescriptors(data.size(), data[0].size() - 8, CV_32F); // Exclude the first 8 columns (index and keypoint data)
-
             std::vector<cv::KeyPoint> handpickedKeypoints(data.size());
 
             for (size_t i = 0; i < data.size(); i++)
@@ -154,7 +154,7 @@ public:
                     handpickedDescriptors.at<float>(i, j - 8) = data[i][j];
                 }
             }
-
+            storePickedKP = handpickedKeypoints;
             // Ensure cameraDescriptors are also of type CV_32F
             if (cameraDescriptors.type() != CV_32F)
             {
@@ -165,8 +165,7 @@ public:
             std::cout << "camera keypoints: " << cameraKeypoints.size() << std::endl;
             std::cout << "picked descriptors: " << handpickedDescriptors.size() << std::endl;
             std::cout << "camera descriptors: " << cameraDescriptors.size() << std::endl;
-            // Here you can perform the matching or further processing
-            std::vector<cv::DMatch> newMatches;
+
             matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
 
             cv::drawMatches(img_with_keypoints, handpickedKeypoints, camera_img_with_keypoints, cameraKeypoints, newMatches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
@@ -194,7 +193,7 @@ public:
 
         if (safeThreshold)
         {
-            std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/threshold.csv");
+            std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
 
             // Write header row
             outFile << "Index,X,Y,Size,Angle,Response,Octave,ClassID";
@@ -224,7 +223,7 @@ public:
                     outFile << "\n";
                 }
             }
-            std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'threshold.csv'." << std::endl;
+            std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
             outFile.close();
 
             std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
