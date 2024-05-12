@@ -52,6 +52,15 @@ public:
             std::ofstream file("/home/fhtw_user/msvr/pose_estimation/descriptors.csv");
             if (file.is_open())
             {
+                // Writing the header line with descriptor column names
+                file << "Index"; // Include an index header
+                for (int j = 0; j < descriptors.cols; ++j)
+                {
+                    file << ",D" << j; // Append each descriptor header like D0, D1, ..., D127
+                }
+                file << "\n"; // End the header line
+
+                // Writing the descriptor data
                 for (int i = 0; i < descriptors.rows; ++i)
                 {
                     file << i; // Start with the row index
@@ -88,7 +97,7 @@ public:
 
         std::vector<cv::DMatch> matches;
         cv::BFMatcher matcher(cv::NORM_L2); // Using L2 norm, adjust if needed
-        if(!useHandpicked)
+        if (!useHandpicked)
             matcher.match(descriptors, cameraDescriptors, matches);
 
         if (useHandpicked)
@@ -121,7 +130,7 @@ public:
                 data.push_back(row);
             }
 
-            cv::Mat handpickedDescriptors(data.size(), data[0].size() - 9, CV_32F); // Exclude the first 9 columns (index and keypoint data)
+            cv::Mat handpickedDescriptors(data.size(), data[0].size() - 8, CV_32F); // Exclude the first 8 columns (index and keypoint data)
 
             std::vector<cv::KeyPoint> handpickedKeypoints(data.size());
 
@@ -140,9 +149,9 @@ public:
                 handpickedKeypoints[i] = kp;
 
                 // Load the descriptor data
-                for (size_t j = 9; j < data[0].size(); j++) // Start from 9 to skip index and keypoint columns
+                for (size_t j = 8; j < data[0].size(); j++) // Start from 8 to skip index and keypoint columns
                 {
-                    handpickedDescriptors.at<float>(i, j - 9) = data[i][j];
+                    handpickedDescriptors.at<float>(i, j - 8) = data[i][j];
                 }
             }
 
@@ -151,9 +160,11 @@ public:
             {
                 cameraDescriptors.convertTo(cameraDescriptors, CV_32F);
             }
-            
+
             std::cout << "picked keypoints: " << handpickedKeypoints.size() << std::endl;
             std::cout << "camera keypoints: " << cameraKeypoints.size() << std::endl;
+            std::cout << "picked descriptors: " << handpickedDescriptors.size() << std::endl;
+            std::cout << "camera descriptors: " << cameraDescriptors.size() << std::endl;
             // Here you can perform the matching or further processing
             std::vector<cv::DMatch> newMatches;
             matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
