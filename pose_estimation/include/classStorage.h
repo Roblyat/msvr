@@ -15,6 +15,7 @@ public:
     cv::Mat image;
     cv::Mat gray_scaled_image;
     cv::Mat img_with_keypoints;
+    cv::Mat img_with_handpickedKeypoints;
     cv::Mat undistortImage;
     cv::Mat descriptors;
     std::vector<cv::KeyPoint> keypoints;

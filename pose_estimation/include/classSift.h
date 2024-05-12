@@ -80,7 +80,7 @@ public:
 
     void matchDescriptors(const cv::Mat &descriptors, const cv::Mat &cameraDescriptors, std::vector<cv::DMatch> &goodMatches,
                           std::vector<cv::KeyPoint> &keypoints, std::vector<cv::KeyPoint> &cameraKeypoints, cv::Mat &img_with_keypoints,
-                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, size_t oldSize,
+                          cv::Mat &camera_img_with_keypoints, cv::Mat &img_matches, cv::Mat &img_with_handpickedKeypoints, size_t oldSize,
                           bool safeThreshold, bool variateThreshold, bool useHandpicked, bool showAllMatches)
     {
         if (variateThreshold)
@@ -94,6 +94,7 @@ public:
         // use handpicked descriptors
         if (useHandpicked)
         {
+            std::cout << "#######   1   #######" << std::endl;
             std::ifstream file("/home/fhtw_user/msvr/pose_estimation/threshold.csv");
             std::vector<std::vector<float>> data;
             std::string line;
@@ -112,6 +113,8 @@ public:
                 data.push_back(row);
             }
 
+            std::cout << "#######   2   #######" << std::endl;
+
             cv::Mat handpickedDescriptors(data.size(), data[0].size() - 1, CV_32F); // Exclude the first column which contains indices
 
             for (size_t i = 0; i < data.size(); i++)
@@ -122,12 +125,28 @@ public:
                 }
             }
 
-            // std::cout << handpickedDescriptors.size() << std::endl;
+            std::cout << "#######   3   #######" << std::endl;
 
-            matcher.match(handpickedDescriptors, cameraDescriptors, matches);
+            std::vector<cv::KeyPoint> handpickedKeypoints;
+            for (const auto &match : goodMatches)
+            {
+                handpickedKeypoints.push_back(keypoints[match.queryIdx]); // Collect keypoints corresponding to good matches
+            }
 
-            cv::drawMatches(img_with_keypoints, keypoints, camera_img_with_keypoints, cameraKeypoints, matches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
-                            std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+            std::cout << "#######   4   #######" << std::endl;
+
+            // cv::drawKeypoints(image, handpickedKeypoints, img_with_handpickedKeypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+
+            std::cout << "#######   5   #######" << std::endl;
+
+            std::vector<cv::DMatch> newMatches;
+            matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
+
+            std::cout << "keypoints: " << handpickedKeypoints.size() << std::endl;
+            std::cout << "Camera keypoints: " << cameraKeypoints.size() << std::endl;
+
+            // cv::drawMatches(img_with_keypoints, handpickedKeypoints, camera_img_with_keypoints, cameraKeypoints, newMatches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
+            //                 std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
         };
 
         std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b)
@@ -148,20 +167,29 @@ public:
         if (!showAllMatches && variateThreshold)
             cv::drawMatches(img_with_keypoints, keypoints, camera_img_with_keypoints, cameraKeypoints, goodMatches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
                             std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+        // #####################################
+        // std::cout << "keypoints: " << keypoints.size() << std::endl;
+        // std::cout << "Camera keypoints: " << cameraKeypoints.size() << std::endl;
 
         if (safeThreshold)
         {
             std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/threshold.csv");
             for (const auto &match : goodMatches)
             {
-                int trainIdx = match.trainIdx; // Index of the descriptor in the training set
-                if (trainIdx < descriptors.rows)
+                int queryIdx = match.queryIdx; // Index of the descriptor in the training set
+                if (queryIdx < descriptors.rows && queryIdx < keypoints.size())
                 {
-                    outFile << trainIdx; // First column is the index
-                    const cv::Mat descriptor = descriptors.row(trainIdx);
+                    const cv::KeyPoint &kp = keypoints[queryIdx];
+                    const cv::Mat descriptor = descriptors.row(queryIdx);
+
+                    // Write keypoint data
+                    outFile << queryIdx << "," << kp.pt.x << "," << kp.pt.y << "," << kp.size << ","
+                            << kp.angle << "," << kp.response << "," << kp.octave << "," << kp.class_id;
+
+                    // Write descriptor data
                     for (int j = 0; j < descriptor.cols; j++)
                     {
-                        outFile << "," << descriptor.at<float>(j); // Append descriptor values
+                        outFile << "," << descriptor.at<float>(j);
                     }
                     outFile << "\n";
                 }
@@ -171,7 +199,7 @@ public:
 
             std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
             goodMatches.clear();
-        };
+        }
     };
 
     int showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
