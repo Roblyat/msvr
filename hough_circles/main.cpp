@@ -28,7 +28,7 @@ struct Storage {
 
 class CvBasic {
 private:
-    int lh = 0, uh = 8, ls = 90, us = 255, lv = 145, uv = 255;
+    int lh = 35, uh = 85, ls = 100, us = 255, lv = 50, uv = 255;
 
 public:
     //constructor
@@ -56,7 +56,7 @@ public:
         std::cout << "[" << image.rows << "x" << image.cols << "x" << image.channels( ) << "]" << std::endl;
     };
     //convert the input BGR image to HSV color space for easier color segmentation
-    cv::Mat segmentImage(const cv::Mat& image) {
+    cv::Mat segmentImage(const cv::Mat& image, cv::Mat& storageImage) {
         cv::Mat hsv;
         cv::cvtColor(image, hsv, cv::COLOR_BGR2HSV);
 
@@ -70,8 +70,7 @@ public:
         cv::Mat grayScaleImage;
         cv::cvtColor(segmentedImage, grayScaleImage, cv::COLOR_BGR2GRAY);
 
-        cv::Mat floatGrayScaledImage;
-        grayScaleImage.convertTo(floatGrayScaledImage, CV_32F);
+        grayScaleImage.convertTo(storageImage, CV_32F);
 
         cv::imshow("segmented", grayScaleImage);
 
@@ -162,9 +161,9 @@ int main(int argc, char** argv) {
     //to adjust while running
     while (true) {
         //segment image
-        Storage.segmentedImage = Processor.segmentImage(Storage.image);
+        Storage.segmentedImage = Processor.segmentImage(Storage.image, Storage.graySegmentedImage);
         //convolute image
-        Storage.convoloutedImage = Convolver.conv(Storage.segmentedImage);        
+        Storage.convoloutedImage = Convolver.conv(Storage.graySegmentedImage);        
         //sobel x and y 
         SobelDetector.getEdges(Storage.convoloutedImage);
 
