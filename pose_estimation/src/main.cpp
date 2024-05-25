@@ -20,7 +20,7 @@ int main()
     cv::VideoCapture cap(0);
 
     while (key != 'd')
-    {   
+    {
         // siftTrain.trackbars("train parameters");
         // siftCamera.trackbars("camera parameters");
 
@@ -38,8 +38,8 @@ int main()
 
         siftCamera.matchDescriptors(storage.descriptors, storage.cameraDescriptors,
                                     storage.goodMatches, storage.keypoints, storage.cameraKeypoints, storage.img_with_keypoints,
-                                    storage.camera_img_with_keypoints, storage.img_matches, storage.img_with_handpickedKeypoints, 
-                                    storage.newMatches, storage.storePickedKP, storage.oldSize, 
+                                    storage.camera_img_with_keypoints, storage.img_matches, storage.img_with_handpickedKeypoints,
+                                    storage.newMatches, storage.storePickedKP, storage.oldSize,
                                     false, false, true, false);
 
         cv::imshow("Camera Features", storage.img_matches);
