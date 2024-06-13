@@ -13,13 +13,10 @@ private:
     void printRows(cv::Mat targets) const;
     void shuffleData();
     void splitData();
+    void standardizeData();
 
     cv::Mat features;
     cv::Mat targets;
-
-public:
-    Storage();
-    ~Storage() = default;
 
     struct TrainData
     {
@@ -32,4 +29,12 @@ public:
         cv::Mat features;
         cv::Mat targets;
     };
+
+public:
+    Storage();
+    ~Storage() = default;
+
+
+    TrainData trainData;
+    TestData testData;
 };

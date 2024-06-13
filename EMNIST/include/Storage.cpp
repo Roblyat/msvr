@@ -4,11 +4,10 @@
 Storage::Storage()
 {
     loadData();
-    std::cout << "###   EXTRAHIERT  ###" << std::endl;
     extractRowsForLetters();
-    std::cout << "###   SHUFFLE   ###" << std::endl;
     shuffleData();
     splitData();
+    standardizeData();
 }
 
 void Storage::loadData()
@@ -54,6 +53,7 @@ void Storage::extractRowsForLetters()
     features = filteredFeatures;
     targets = filteredTargets;
 
+    std::cout << "###   EXTRACTED  ###" << std::endl;
     std::cout << "Filtered features rows: " << features.rows << std::endl;
     std::cout << "Filtered targets rows: " << targets.rows << std::endl;
 
@@ -67,6 +67,7 @@ void Storage::shuffleData()
     features.copyTo(combinedData.colRange(1, combinedData.cols));
     targets.copyTo(combinedData.col(0));
 
+    std::cout << "###   COMBINED   ###" << std::endl;
     std::cout << "Combined data rows: " << combinedData.rows << std::endl;
     std::cout << "Combined data cols: " << combinedData.cols << std::endl;
     std::cout << "Lable 0: " << combinedData.at<float>(0, 0) << std::endl;
@@ -100,12 +101,7 @@ void Storage::shuffleData()
 
 void Storage::splitData()
 {
-
-    TrainData trainData;
-    TestData testData;
-
     size_t trainSize = features.rows / 6; // 1/6 of the data for training
-    size_t testSize = features.rows - trainSize; // Remaining data for testing
 
     // Ensure that indices are shuffled and split according to the calculated sizes
     for (size_t i = 0; i < trainSize; ++i)
@@ -114,19 +110,49 @@ void Storage::splitData()
         trainData.targets.push_back(targets.row(i));
     }
 
-    for (size_t i = trainSize; i < features.rows; ++i)
+    for (size_t i = trainSize; i < static_cast<size_t>(features.rows); ++i)
     {
         testData.features.push_back(features.row(i));
         testData.targets.push_back(targets.row(i));
     }
-
+    std::cout << "###   SHUFFLED AND SPLIT   ###" << std::endl;
     std::cout << "Train data features rows: " << trainData.features.rows << std::endl;
     std::cout << "Train data targets rows: " << trainData.targets.rows << std::endl;
     std::cout << "Test data features rows: " << testData.features.rows << std::endl;
     std::cout << "Test data targets rows:  " << testData.targets.rows << std::endl;
 
-    std::cout << "shuffled train Data: " << std::endl;
+    std::cout << "###   SHUFFLE TEST  ###" << std::endl;
+    std::cout << "###   shuffled train Data   ###: " << std::endl;
     printRows(trainData.targets);
-    std::cout << "shuffled test Data: " << std::endl;
+    std::cout << "###  shuffled test Data   ###: " << std::endl;
     printRows(testData.targets);
+}
+
+void Storage::standardizeData()
+{
+    // Standardize the features matrix
+    cv::Mat mean, stddev;
+    cv::meanStdDev(trainData.features, mean, stddev);
+
+    // Initialisiere X_standardized mit den gleichen Dimensionen und Typ wie features
+    cv::Mat features_centered = trainData.features.clone();
+    for (int i = 0; i < trainData.features.cols; ++i) {
+        features_centered.col(i) -= mean.at<double>(i);
+    }
+
+    // Numerische Probleme vermeiden und standardisieren
+    for (int i = 0; i < trainData.features.cols; ++i) {
+        double scale = stddev.at<double>(i);
+        if (scale < 1e-6) {
+            scale = 1e-6;
+        }
+        features_centered.col(i) /= scale;
+    }
+
+    trainData.features = features_centered;
+
+    cv::meanStdDev(trainData.features, mean, stddev);
+    std::cout << "###   STANDARDIZED   ###" << std::endl;
+    std::cout << "Mean: " << mean << std::endl;
+    std::cout << "Stddev: " << stddev << std::endl;
 }
