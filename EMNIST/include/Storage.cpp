@@ -107,19 +107,19 @@ void Storage::splitData()
     // Ensure that indices are shuffled and split according to the calculated sizes
     for (size_t i = 0; i < trainSize; ++i)
     {
-        trainData.features.push_back(features.row(i));
+        trainData.origin.features.push_back(features.row(i));
         trainData.targets.push_back(targets.row(i));
     }
 
     for (size_t i = trainSize; i < static_cast<size_t>(features.rows); ++i)
     {
-        testData.features.push_back(features.row(i));
+        testData.origin.features.push_back(features.row(i));
         testData.targets.push_back(targets.row(i));
     }
     std::cout << "###   SHUFFLED AND SPLIT   ###" << std::endl;
-    std::cout << "Train data features rows: " << trainData.features.rows << std::endl;
+    std::cout << "Train data features rows: " << trainData.origin.features.rows << std::endl;
     std::cout << "Train data targets rows: " << trainData.targets.rows << std::endl;
-    std::cout << "Test data features rows: " << testData.features.rows << std::endl;
+    std::cout << "Test data features rows: " << testData.origin.features.rows << std::endl;
     std::cout << "Test data targets rows:  " << testData.targets.rows << std::endl;
 
     std::cout << "###   SHUFFLE TEST  ###" << std::endl;

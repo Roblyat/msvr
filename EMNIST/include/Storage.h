@@ -21,14 +21,32 @@ private:
 
     struct TrainData
     {
-        cv::Mat features;
         cv::Mat targets;
+
+        struct origin
+        {
+            cv::Mat features;
+        }origin;
+
+        struct transformed
+        {
+            cv::Mat features;
+        }transoformed;
     };
 
     struct TestData
     {
-        cv::Mat features;
         cv::Mat targets;
+        
+        struct origin
+        {
+            cv::Mat features;
+        }origin;
+
+        struct transformed
+        {
+            cv::Mat features;
+        }transformed;
     };
 
 public:
@@ -37,4 +55,5 @@ public:
 
     TrainData trainData;
     TestData testData;
+
 };
