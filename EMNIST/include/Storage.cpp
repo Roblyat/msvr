@@ -5,9 +5,10 @@ Storage::Storage()
 {
     loadData();
     extractRowsForLetters();
+    standardizeData();
     shuffleData();
     splitData();
-    standardizeData();
+    // standardizeData();
 }
 
 void Storage::loadData()
@@ -23,7 +24,7 @@ void Storage::loadData()
 }
 
 void Storage::printRows(cv::Mat targets) const
-{   
+{
     std::cout << "First five rows of targets:" << std::endl;
     for (int i = 0; i < 5; ++i)
     {
@@ -128,31 +129,47 @@ void Storage::splitData()
     printRows(testData.targets);
 }
 
+void Storage::printMinMax(const cv::Mat &mat) const
+{
+    double minVal, maxVal;
+    cv::minMaxLoc(mat, &minVal, &maxVal);
+    std::cout << "Min value: " << minVal << ", Max value: " << maxVal << std::endl;
+}
+
+// Add this function call in standardizeData
 void Storage::standardizeData()
 {
+    std::cout << "###   BEFORE STANDARDIZATION   ###" << std::endl;
+    printMinMax(features);
+
     // Standardize the features matrix
     cv::Mat mean, stddev;
-    cv::meanStdDev(trainData.features, mean, stddev);
+    cv::meanStdDev(features, mean, stddev);
 
-    // Initialisiere X_standardized mit den gleichen Dimensionen und Typ wie features
-    cv::Mat features_centered = trainData.features.clone();
-    for (int i = 0; i < trainData.features.cols; ++i) {
-        features_centered.col(i) -= mean.at<double>(i);
+    // Initialize features_centered with the same dimensions and type as features
+    cv::Mat features_centered = features.clone();
+    for (int i = 0; i < features.cols; ++i)
+    {
+        features_centered.col(i) -= mean.at<double>(0, 0); // Use proper indexing
     }
 
-    // Numerische Probleme vermeiden und standardisieren
-    for (int i = 0; i < trainData.features.cols; ++i) {
-        double scale = stddev.at<double>(i);
-        if (scale < 1e-6) {
+    // Avoid numerical issues and standardize
+    for (int i = 0; i < features.cols; ++i)
+    {
+        double scale = stddev.at<double>(0, 0); // Use proper indexing
+        if (scale < 1e-6)
+        {
             scale = 1e-6;
         }
         features_centered.col(i) /= scale;
     }
 
-    trainData.features = features_centered;
+    features = features_centered;
 
-    cv::meanStdDev(trainData.features, mean, stddev);
+    // Recompute mean and stddev for standardized features
+    cv::meanStdDev(features, mean, stddev);
     std::cout << "###   STANDARDIZED   ###" << std::endl;
     std::cout << "Mean: " << mean << std::endl;
     std::cout << "Stddev: " << stddev << std::endl;
+    printMinMax(features);
 }

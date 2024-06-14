@@ -11,6 +11,7 @@ private:
     void loadData();
     void extractRowsForLetters();
     void printRows(cv::Mat targets) const;
+    void printMinMax(const cv::Mat& mat) const;
     void shuffleData();
     void splitData();
     void standardizeData();
@@ -33,7 +34,6 @@ private:
 public:
     Storage();
     ~Storage() = default;
-
 
     TrainData trainData;
     TestData testData;
