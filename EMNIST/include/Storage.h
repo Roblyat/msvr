@@ -53,7 +53,8 @@ public:
     Storage();
     ~Storage() = default;
 
+    void convertData();
+
     TrainData trainData;
     TestData testData;
-
 };

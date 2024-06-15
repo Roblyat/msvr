@@ -6,8 +6,8 @@ Storage::Storage()
     loadData();
     extractRowsForLetters();
     standardizeData();
-    shuffleData();
-    splitData();
+    // shuffleData();
+    // splitData();
     // standardizeData();
 }
 
@@ -165,6 +165,7 @@ void Storage::standardizeData()
     }
 
     features = features_centered;
+    trainData.origin.features = features;   //###############################
 
     // Recompute mean and stddev for standardized features
     cv::meanStdDev(features, mean, stddev);
@@ -172,4 +173,19 @@ void Storage::standardizeData()
     std::cout << "Mean: " << mean << std::endl;
     std::cout << "Stddev: " << stddev << std::endl;
     printMinMax(features);
+}
+
+void Storage::convertData()
+{
+    // Convert the data to the appropriate type
+    trainData.origin.features.convertTo(trainData.origin.features, CV_32F);
+    trainData.targets.convertTo(trainData.targets, CV_32S);
+    testData.origin.features.convertTo(testData.origin.features, CV_32F);
+    testData.targets.convertTo(testData.targets, CV_32S);
+
+    std::cout << "###   CONVERTED   ###" << std::endl;
+    std::cout << "Train data features type: " << trainData.origin.features.type() << std::endl;
+    std::cout << "Train data targets type: " << trainData.targets.type() << std::endl;
+    std::cout << "Test data features type: " << testData.origin.features.type() << std::endl;
+    std::cout << "Test data targets type: " << testData.targets.type() << std::endl;
 }
