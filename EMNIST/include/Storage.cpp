@@ -6,8 +6,8 @@ Storage::Storage()
     loadData();
     extractRowsForLetters();
     standardizeData();
-    // shuffleData();
-    // splitData();
+    shuffleData();
+    splitData();
     // standardizeData();
 }
 
@@ -165,7 +165,6 @@ void Storage::standardizeData()
     }
 
     features = features_centered;
-    trainData.origin.features = features;   //###############################
 
     // Recompute mean and stddev for standardized features
     cv::meanStdDev(features, mean, stddev);
