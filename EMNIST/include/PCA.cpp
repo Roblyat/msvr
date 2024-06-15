@@ -26,25 +26,40 @@ cv::Mat PCA::transform(const cv::Mat& data, const std::string& dataType)
 
 void PCA::calculateExplainedVariance(const cv::Mat &data, int maxComponents, const std::string &outputCsvFile)
 {
-    for (int i = 1; i <= maxComponents; ++i) {
-        fit(data, i);
-        cv::Mat eigenvalues = pca.eigenvalues;// Assuming you add a method to get eigenvalues
-        double totalVariance = cv::sum(eigenvalues)[0];
-        double explainedVariance = cv::sum(eigenvalues.rowRange(0, i))[0] / totalVariance;
-        explainedVariances.push_back(explainedVariance);
+    explainedVariances.clear();  // Clear previous variances
+
+    // Calculate the total variance from all components
+    double totalVariance = 0.0;
+    cv::PCA pcaAll(data, cv::Mat(), cv::PCA::DATA_AS_ROW, data.cols);
+    cv::Mat eigenvaluesAll = pcaAll.eigenvalues;
+    for (int i = 0; i < eigenvaluesAll.rows; ++i) {
+        totalVariance += eigenvaluesAll.at<float>(i, 0);
     }
 
-    // Save explained variances to a CSV file
+    // Open the CSV file for writing
     std::ofstream csvFile(outputCsvFile);
-
     if (!csvFile.is_open()) {
         throw std::runtime_error("Could not open file to save explained variances.");
     }
 
-    csvFile << "Components,ExplainedVariance\n";
-    for (size_t i = 0; i < explainedVariances.size(); ++i) {
-        csvFile << (i + 1) << "," << explainedVariances[i] << "\n";
+    // Write the header
+    csvFile << "Component,Eigenvalue,ExplainedVariance,CumulativeVariance\n";
+
+    for (int i = 1; i <= maxComponents; ++i) {
+        cv::PCA pca(data, cv::Mat(), cv::PCA::DATA_AS_ROW, i);
+        cv::Mat eigenvalues = pca.eigenvalues;
+
+        double cumulativeVariance = 0.0;
+        for (int j = 0; j < i; ++j) {
+            double explainedVariance = eigenvalues.at<float>(j, 0) / totalVariance;
+            cumulativeVariance += explainedVariance;
+            csvFile << i << "," 
+                    << eigenvalues.at<float>(j, 0) << ","
+                    << explainedVariance << ","
+                    << cumulativeVariance << "\n";
+        }
     }
+
     csvFile.close();
     std::cout << "###  Saved " << outputCsvFile << "   ###" << std::endl;
 }

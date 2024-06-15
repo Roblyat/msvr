@@ -12,7 +12,7 @@ int main()
 
     PCA pca;
 
-    pca.calculateExplainedVariance(storage.trainData.origin.features, 200, outputCsvFile);
+    pca.calculateExplainedVariance(storage.trainData.origin.features, 50, outputCsvFile);
 
     pca.fit(storage.trainData.origin.features, optimalComponents);
     pca.transform(storage.trainData.origin.features, "TrainData");
