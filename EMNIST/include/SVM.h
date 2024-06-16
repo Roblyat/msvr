@@ -15,4 +15,6 @@ public:
 
 private:
     cv::Ptr<cv::ml::SVM> svm;
+    cv::Ptr<cv::ml::TrainData> trainData;
+    cv::Ptr<cv::ml::TrainData> testData;
 };

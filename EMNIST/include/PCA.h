@@ -12,7 +12,7 @@ public:
     ~PCA() = default;
 
     void fit(const cv::Mat& data, int numComponents);
-    cv::Mat transform(const cv::Mat& data, const std::string& dataType);
+    cv::Mat transform(const cv::Mat& data, cv::Mat &projectedData, const std::string& dataType);
     void calculateExplainedVariance(const cv::Mat &data, int maxComponents, const std::string &outputCsvFile);
 
 private:

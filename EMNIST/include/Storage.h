@@ -31,7 +31,7 @@ private:
         struct transformed
         {
             cv::Mat features;
-        }transoformed;
+        }transformed;
     };
 
     struct TestData

@@ -4,19 +4,21 @@ SVM::SVM()
 {
     // Initialize the SVM with default parameters
     svm = cv::ml::SVM::create();
-    svm->setType(cv::ml::SVM::C_SVC);
+    svm->setType(cv::ml::SVM::NU_SVC);
     svm->setKernel(cv::ml::SVM::RBF);
     svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 1e-6));
 }
 
-void SVM::train(const cv::Mat& trainData, const cv::Mat& trainLabels)
+void SVM::train(const cv::Mat& features, const cv::Mat& lables) //######## HIER TRAIN SEBLER GRID SEARCH MACHEN COCO CPP
 {
     // Ensure the data type is CV_32F
     // trainData.convertTo(trainData, CV_32F);
     // trainLabels.convertTo(trainLabels, CV_32S);
-
+    svm->setNu(0.01);
+    svm->setGamma(0.0001);
+    this->trainData = cv::ml::TrainData::create(features, cv::ml::ROW_SAMPLE, lables);
     // Train the SVM
-    svm->train(trainData, cv::ml::ROW_SAMPLE, trainLabels);
+    svm->train(trainData, cv::ml::ROW_SAMPLE);
 }
 
 float SVM::evaluate(const cv::Mat& testData, const cv::Mat& testLabels)

@@ -9,16 +9,16 @@ void PCA::fit(const cv::Mat &data, int numComponents)
     std::cout << "PCA fitted with " << numComponents << " components." << std::endl;
 }
 
-cv::Mat PCA::transform(const cv::Mat &data, const std::string &dataType)
+cv::Mat PCA::transform(const cv::Mat &data, cv::Mat &projectedData, const std::string &dataType)
 {
     // Ensure the data type is CV_32F
     data.convertTo(data, CV_32F);
 
     // Transform the data using the fitted PCA model
-    cv::Mat projectedData;
     pca.project(data, projectedData);
     std::cout << "TRANSFORMED " << dataType << std::endl;
     std::cout << "Transformed " << dataType << " training data size: " << projectedData.size() << std::endl;
+
     return projectedData;
 }
 

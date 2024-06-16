@@ -5,10 +5,9 @@ Storage::Storage()
 {
     loadData();
     extractRowsForLetters();
-    standardizeData();
     shuffleData();
     splitData();
-    // standardizeData();
+    standardizeData();
 }
 
 void Storage::loadData()
@@ -144,13 +143,16 @@ void Storage::standardizeData()
 
     // Standardize the features matrix
     cv::Mat mean, stddev;
-    cv::meanStdDev(features, mean, stddev);
+    cv::meanStdDev(trainData.origin.features, mean, stddev);
 
     // Initialize features_centered with the same dimensions and type as features
-    cv::Mat features_centered = features.clone();
+    cv::Mat features_centered_train = trainData.origin.features.clone();
+    cv::Mat features_centered_test = testData.origin.features.clone();
     for (int i = 0; i < features.cols; ++i)
-    {
-        features_centered.col(i) -= mean.at<double>(0, 0); // Use proper indexing
+    {   
+        //###################################       features_test - mean.train 
+        features_centered_train.col(i) -= mean.at<double>(0, 0); // Use proper indexing
+        features_centered_test.col(i) -= mean.at<double>(0, 0);
     }
 
     // Avoid numerical issues and standardize
@@ -161,17 +163,25 @@ void Storage::standardizeData()
         {
             scale = 1e-6;
         }
-        features_centered.col(i) /= scale;
+        features_centered_train.col(i) /= scale;
+        features_centered_test.col(i) /= scale;
     }
 
-    features = features_centered;
+    trainData.origin.features = features_centered_train;
+    testData.origin.features = features_centered_test;
 
     // Recompute mean and stddev for standardized features
-    cv::meanStdDev(features, mean, stddev);
+    cv::meanStdDev(trainData.origin.features, mean, stddev);
     std::cout << "###   STANDARDIZED   ###" << std::endl;
     std::cout << "Mean: " << mean << std::endl;
     std::cout << "Stddev: " << stddev << std::endl;
-    printMinMax(features);
+    printMinMax(trainData.origin.features);
+
+    cv::meanStdDev(testData.origin.features, mean, stddev);
+    std::cout << "###   STANDARDIZED   ###" << std::endl;
+    std::cout << "Mean: " << mean << std::endl;
+    std::cout << "Stddev: " << stddev << std::endl;
+    printMinMax(testData.origin.features);
 }
 
 void Storage::convertData()
