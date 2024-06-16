@@ -42,34 +42,6 @@ public:
         cv::undistort(image, undistortImage, cameraMatrix, distCoeffs);
     };
 
-    void startCamera(cv::Mat &cameraImage)
-    {
-        cv::VideoCapture cap(0); // Open the default camera
-        if (!cap.isOpened())
-        {
-            std::cerr << "Error opening video stream or file" << std::endl;
-            return;
-        }
-
-        while (true)
-        {
-            cap >> cameraImage; // Capture a new image frame
-            if (cameraImage.empty())
-            {
-                std::cerr << "Received empty frame. Exiting..." << std::endl;
-                break; // Exit if the frame is empty
-            }
-
-            cv::imshow("Camera Image", cameraImage); // Display the frame
-            if (cv::waitKey(1) == 'q')
-            {
-                break; // Exit loop on 'q' key press
-            }
-        }
-
-        cap.release(); // Release the video capture object
-    }
-
 private:
     // image path
     const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/webcam/tp6.jpg";

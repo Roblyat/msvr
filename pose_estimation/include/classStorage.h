@@ -1,9 +1,5 @@
 #pragma once
 #include "opencv2/opencv.hpp"
-#include <thread>
-#include <atomic>
-#include <mutex>
-#include <condition_variable>
 #include <vector>
 
 class Storage {

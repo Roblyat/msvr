@@ -13,11 +13,11 @@ int main()
     siftTrain.undistort(storage.image, storage.undistortImage);
     siftTrain.siftExtract(storage.undistortImage, storage.img_with_keypoints, storage.keypoints, storage.descriptors, true);
 
-    cv::namedWindow("Camera Features", cv::WINDOW_NORMAL);
+    // cv::namedWindow("Camera Features", cv::WINDOW_NORMAL);
     // cv::namedWindow("match threshold", cv::WINDOW_NORMAL);
 
     char key = 0;
-    cv::VideoCapture cap(0);
+    cv::VideoCapture cap("/home/fhtw_user/msvr/pose_estimation/webcam/video2Mp4.mp4"); //"/home/fhtw_user/msvr/pose_estimation/webcam/videoMp4.mp4"
 
     while (key != 'd')
     {
