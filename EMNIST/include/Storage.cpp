@@ -150,7 +150,6 @@ void Storage::standardizeData()
     cv::Mat features_centered_test = testData.origin.features.clone();
     for (int i = 0; i < features.cols; ++i)
     {   
-        //###################################       features_test - mean.train 
         features_centered_train.col(i) -= mean.at<double>(0, 0); // Use proper indexing
         features_centered_test.col(i) -= mean.at<double>(0, 0);
     }
@@ -188,8 +187,10 @@ void Storage::convertData()
 {
     // Convert the data to the appropriate type
     trainData.origin.features.convertTo(trainData.origin.features, CV_32F);
+    trainData.transformed.features.convertTo(trainData.transformed.features, CV_32F);
     trainData.targets.convertTo(trainData.targets, CV_32S);
     testData.origin.features.convertTo(testData.origin.features, CV_32F);
+    testData.transformed.features.convertTo(testData.transformed.features, CV_32F);
     testData.targets.convertTo(testData.targets, CV_32S);
 
     std::cout << "###   CONVERTED   ###" << std::endl;
@@ -207,4 +208,12 @@ void Storage::splitValidation()
     trainData.transformed.trainSubset.targets = trainData.targets.rowRange(0, trainData.targets.rows - validationSize);
     trainData.transformed.validateSubset.features = trainData.transformed.features.rowRange(trainData.transformed.features.rows - validationSize, trainData.transformed.features.rows);
     trainData.transformed.validateSubset.targets = trainData.targets.rowRange(trainData.targets.rows - validationSize, trainData.targets.rows);
+
+    std::cout << "###   SPLIT   ###" << std::endl;
+    std::cout << "Train subset features rows: " << trainData.transformed.trainSubset.features.rows << std::endl;
+    std::cout << "Train subset targets rows: " << trainData.transformed.trainSubset.targets.rows << std::endl;
+    std::cout << "Validate subset features rows: " << trainData.transformed.validateSubset.features.rows << std::endl;
+    std::cout << "Validate subset targets rows: " << trainData.transformed.validateSubset.targets.rows << std::endl;
+    std::cout << "Train subset 5 first targets: " << trainData.transformed.trainSubset.targets.rowRange(0, 5) << std::endl;
+    std::cout << "Validate subset 5 first targets: " << trainData.transformed.validateSubset.targets.rowRange(0, 5) << std::endl;   
 }

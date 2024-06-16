@@ -17,22 +17,19 @@ int main()
     pca.transform(storage.testData.origin.features, storage.testData.transformed.features,"TestData");
 
     storage.convertData();
-
-    //show first 5 rows of the transformed train features
-    // std::cout << "Transformed Train Features: "  << storage.trainData.transformed.features.rowRange(0,5) << std::endl;
-    // std::cout << " Transformed Test Features: " << storage.testData.transformed.features.rowRange(0,5) << std::endl;
-    //show first five rows of the train targets
-    // std::cout << "Transformed Train Targets: " << storage.trainData.targets.rowRange(0,5) << std::endl;
-    // std::cout << "Transformed Test Targets: " << storage.testData.targets.rowRange(0,5) << std::endl;
+    storage.splitValidation();
 
     SVM svm;
     std::cout << "Created SVM" << std::endl;
-    // svm.optimizeParameters(storage.trainData.transformed.features, storage.trainData.targets);
-    // std::cout << "Optimized SVM" << std::endl;
+
+    svm.optimizeParameters(storage.trainData.transformed.trainSubset.features, storage.trainData.transformed.trainSubset.targets, 
+                           storage.trainData.transformed.validateSubset.features, storage.trainData.transformed.validateSubset.targets);                         
+    std::cout << "Optimized SVM" << std::endl;
+
     svm.train(storage.trainData.transformed.features, storage.trainData.targets);
     std::cout << "trained SVM" << std::endl;
-    float accuracy = svm.evaluate(storage.testData.transformed.features, storage.testData.targets);
 
+    float accuracy = svm.evaluate(storage.testData.transformed.features, storage.testData.targets);
     // Output the result
     std::cout << "Iteration 1: ACC " << accuracy * 100 << "%" << std::endl;
 

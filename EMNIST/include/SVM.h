@@ -17,4 +17,7 @@ private:
     cv::Ptr<cv::ml::SVM> svm;
     cv::Ptr<cv::ml::TrainData> trainData;
     cv::Ptr<cv::ml::TrainData> testData;
+    float bestNu = 0.001;
+    float bestGamma = 0.0001;
+    float bestAccuracy = 0.0;
 };

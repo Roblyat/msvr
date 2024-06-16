@@ -9,13 +9,10 @@ SVM::SVM()
     svm->setTermCriteria(cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 1e-6));
 }
 
-void SVM::train(const cv::Mat& features, const cv::Mat& lables) //######## HIER TRAIN SEBLER GRID SEARCH MACHEN COCO CPP
+void SVM::train(const cv::Mat& features, const cv::Mat& lables) 
 {
-    // Ensure the data type is CV_32F
-    // trainData.convertTo(trainData, CV_32F);
-    // trainLabels.convertTo(trainLabels, CV_32S);
-    svm->setNu(0.01);
-    svm->setGamma(0.0001);
+    svm->setNu(bestNu);
+    svm->setGamma(bestGamma);
     this->trainData = cv::ml::TrainData::create(features, cv::ml::ROW_SAMPLE, lables);
     // Train the SVM
     svm->train(trainData, cv::ml::ROW_SAMPLE);
@@ -24,40 +21,44 @@ void SVM::train(const cv::Mat& features, const cv::Mat& lables) //######## HIER 
 float SVM::evaluate(const cv::Mat& testData, const cv::Mat& testLabels)
 {
     // Ensure the data type is CV_32F
-    // testData.convertTo(testData, CV_32F);
-    // testLabels.convertTo(testLabels, CV_32S);
+    cv::Mat floatTestData;
+    testData.convertTo(floatTestData, CV_32F);
+
+    // Ensure the labels are in CV_32S for comparison
+    cv::Mat intTestLabels;
+    testLabels.convertTo(intTestLabels, CV_32S);
 
     // Evaluate the SVM on the test data
     cv::Mat predictions;
-    svm->predict(testData, predictions);
+    svm->predict(floatTestData, predictions);
 
-    std::cout << "Predictions: " << predictions.rowRange(0, 5) << std::endl;
-    std::cout << "Actual labels: " << testLabels.rowRange(0, 5) << std::endl;
+    // Ensure predictions are in CV_32S for comparison
+    cv::Mat intPredictions;
+    predictions.convertTo(intPredictions, CV_32S);
 
     // Calculate accuracy
     int correct = 0;
-    for (int i = 0; i < testLabels.rows; ++i)
+    for (int i = 0; i < intTestLabels.rows; ++i)
     {
-        if (predictions.at<float>(i, 0) == testLabels.at<float>(i, 0))
+        int predictedLabel = intPredictions.at<int>(i, 0);
+        int actualLabel = intTestLabels.at<int>(i, 0);
+
+        if (predictedLabel == actualLabel)
         {
             correct++;
         }
     }
-    return static_cast<float>(correct) / testLabels.rows;
+    return static_cast<float>(correct) / intTestLabels.rows;
 }
 
 void SVM::optimizeParameters(const cv::Mat& trainData, const cv::Mat& trainLabels, const cv::Mat& valData, const cv::Mat& valLabels)
 {
-    float bestNu = 0.0;
-    float bestGamma = 0.0;
-    float bestAccuracy = 0.0;
-
     std::vector<float> nuValues = {0.01, 0.1, 0.2, 0.3};
     std::vector<float> gammaValues = {0.0001, 0.001, 0.01, 0.1};
 
-    for (float nu : nuValues)
+    for (double nu = 0.01; nu <= 0.5; nu += 0.01)
     {
-        for (float gamma : gammaValues)
+        for (double gamma = 0.0001; gamma <= 0.001; gamma += 0.0001)
         {
             svm->setNu(nu);
             svm->setGamma(gamma);
