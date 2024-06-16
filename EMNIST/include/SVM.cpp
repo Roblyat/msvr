@@ -31,6 +31,9 @@ float SVM::evaluate(const cv::Mat& testData, const cv::Mat& testLabels)
     cv::Mat predictions;
     svm->predict(testData, predictions);
 
+    std::cout << "Predictions: " << predictions.rowRange(0, 5) << std::endl;
+    std::cout << "Actual labels: " << testLabels.rowRange(0, 5) << std::endl;
+
     // Calculate accuracy
     int correct = 0;
     for (int i = 0; i < testLabels.rows; ++i)
@@ -43,13 +46,37 @@ float SVM::evaluate(const cv::Mat& testData, const cv::Mat& testLabels)
     return static_cast<float>(correct) / testLabels.rows;
 }
 
-void SVM::optimizeParameters(const cv::Mat& trainData, const cv::Mat& trainLabels)
+void SVM::optimizeParameters(const cv::Mat& trainData, const cv::Mat& trainLabels, const cv::Mat& valData, const cv::Mat& valLabels)
 {
-    // Ensure the data type is CV_32F
-    // trainData.convertTo(trainData, CV_32F);
-    // trainLabels.convertTo(trainLabels, CV_32S);
+    float bestNu = 0.0;
+    float bestGamma = 0.0;
+    float bestAccuracy = 0.0;
 
-    // Optimize parameters using grid search and cross-validation
-    cv::Ptr<cv::ml::TrainData> tdata = cv::ml::TrainData::create(trainData, cv::ml::ROW_SAMPLE, trainLabels);
-    svm->trainAuto(tdata);
+    std::vector<float> nuValues = {0.01, 0.1, 0.2, 0.3};
+    std::vector<float> gammaValues = {0.0001, 0.001, 0.01, 0.1};
+
+    for (float nu : nuValues)
+    {
+        for (float gamma : gammaValues)
+        {
+            svm->setNu(nu);
+            svm->setGamma(gamma);
+
+            train(trainData, trainLabels);
+
+            float accuracy = evaluate(valData, valLabels);
+            std::cout << "Nu: " << nu << ", Gamma: " << gamma << ", Accuracy: " << accuracy * 100 << "%" << std::endl;
+
+            if (accuracy > bestAccuracy)
+            {
+                bestNu = nu;
+                bestGamma = gamma;
+                bestAccuracy = accuracy;
+            }
+        }
+    }
+
+    svm->setNu(bestNu);
+    svm->setGamma(bestGamma);
+    std::cout << "Best Nu: " << bestNu << ", Best Gamma: " << bestGamma << ", Best Accuracy: " << bestAccuracy * 100 << "%" << std::endl;
 }

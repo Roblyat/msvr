@@ -11,7 +11,7 @@ public:
 
     void train(const cv::Mat& trainData, const cv::Mat& trainLabels);
     float evaluate(const cv::Mat& testData, const cv::Mat& testLabels);
-    void optimizeParameters(const cv::Mat& trainData, const cv::Mat& trainLabels);
+    void optimizeParameters(const cv::Mat& trainData, const cv::Mat& trainLabels, const cv::Mat& valData, const cv::Mat& valLabels);
 
 private:
     cv::Ptr<cv::ml::SVM> svm;

@@ -18,6 +18,13 @@ int main()
 
     storage.convertData();
 
+    //show first 5 rows of the transformed train features
+    // std::cout << "Transformed Train Features: "  << storage.trainData.transformed.features.rowRange(0,5) << std::endl;
+    // std::cout << " Transformed Test Features: " << storage.testData.transformed.features.rowRange(0,5) << std::endl;
+    //show first five rows of the train targets
+    // std::cout << "Transformed Train Targets: " << storage.trainData.targets.rowRange(0,5) << std::endl;
+    // std::cout << "Transformed Test Targets: " << storage.testData.targets.rowRange(0,5) << std::endl;
+
     SVM svm;
     std::cout << "Created SVM" << std::endl;
     // svm.optimizeParameters(storage.trainData.transformed.features, storage.trainData.targets);

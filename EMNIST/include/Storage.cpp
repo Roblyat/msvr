@@ -198,3 +198,13 @@ void Storage::convertData()
     std::cout << "Test data features type: " << testData.origin.features.type() << std::endl;
     std::cout << "Test data targets type: " << testData.targets.type() << std::endl;
 }
+
+void Storage::splitValidation()
+{
+    // Split trainData into training and validation sets
+    int validationSize = trainData.transformed.features.rows / 5; // 20% validation
+    trainData.transformed.trainSubset.features = trainData.transformed.features.rowRange(0, trainData.transformed.features.rows - validationSize);
+    trainData.transformed.trainSubset.targets = trainData.targets.rowRange(0, trainData.targets.rows - validationSize);
+    trainData.transformed.validateSubset.features = trainData.transformed.features.rowRange(trainData.transformed.features.rows - validationSize, trainData.transformed.features.rows);
+    trainData.transformed.validateSubset.targets = trainData.targets.rowRange(trainData.targets.rows - validationSize, trainData.targets.rows);
+}

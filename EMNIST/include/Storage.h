@@ -31,6 +31,19 @@ private:
         struct transformed
         {
             cv::Mat features;
+
+            struct trainSubset
+            {
+                cv::Mat features;
+                cv::Mat targets;
+            }trainSubset;
+
+            struct validateSubset
+            {
+                cv::Mat features;
+                cv::Mat targets;
+            }validateSubset;
+
         }transformed;
     };
 
@@ -54,6 +67,7 @@ public:
     ~Storage() = default;
 
     void convertData();
+    void splitValidation();
 
     TrainData trainData;
     TestData testData;
