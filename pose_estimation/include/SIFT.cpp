@@ -46,7 +46,9 @@ void SIFT::updateSift()
 
     void SIFT::siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, bool saveDescriptors)
     {
-        sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
+        sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors); // Bei Camera train keypoints übergeben, aus camera nur descriptoren für
+                                                                                    //für diese keypoint. bool useProvidedKeypoints = true
+                                                                                    // bessere performance??
 
         // safe descriptors in csv file
         if (saveDescriptors)
@@ -141,7 +143,7 @@ void SIFT::updateSift()
                     handpickedDescriptors.at<float>(i, j - 8) = data[i][j];
                 }
             }
-            storePickedKP = handpickedKeypoints;
+            
             // Ensure cameraDescriptors are also of type CV_32F
             if (cameraDescriptors.type() != CV_32F)
             {
@@ -155,7 +157,7 @@ void SIFT::updateSift()
 
             matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
 
-            //drawMatches
+            // drawMatches();
     }
     // ### bool to enable thresholding + parameters
     void SIFT::drawMatches(cv::Mat img_1, std::vector<cv::KeyPoint> keyPoints_1, cv::Mat img_2, std::vector<cv::KeyPoint> keyPoints_2,
@@ -207,16 +209,16 @@ void SIFT::updateSift()
         std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
         outFile.close();
 
-        std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
-        goodMatches.clear();
+        // std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
+        // goodMatches.clear();
     }
 
     void SIFT::matchDescriptors()
     {      
-        matcher.match(descriptors, cameraDescriptors, matches);
+        // matcher.match(descriptors, cameraDescriptors, matches);
 
-        std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b)
-                  { return a.distance < b.distance; });
+        // std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b)
+                //   { return a.distance < b.distance; });
     }
 
     void SIFT::showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)

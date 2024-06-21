@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -g
 INCLUDES = -I/usr/local/include/opencv4
 LFLAGS = -L/usr/local/lib
 LIBS = -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc -lopencv_features2d -lopencv_xfeatures2d -lopencv_videoio
-SRCS = src/main.cpp include/CVBasic.cpp include/SIFT.cpp 
+SRCS = src/main.cpp include/CVBasic.h include/CVBasic.cpp include/SIFT.h include/SIFT.cpp 
 OBJS = $(SRCS:.cpp=.o)
 MAIN = main
 

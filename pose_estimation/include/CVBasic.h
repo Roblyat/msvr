@@ -24,7 +24,6 @@ public:
 
     void undistort(cv::Mat &image, cv::Mat &undistortImage);
 
-protected:
     // Images and keypoints storage
     cv::Mat image;
     cv::Mat gray_scaled_image;
