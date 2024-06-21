@@ -1,6 +1,6 @@
 // classSift.h
 #pragma once
-#include "../include/classCVBasic.h"
+#include "CVBasic.h"
 
 class SIFT : public CVBasic
 {
