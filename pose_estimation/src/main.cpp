@@ -6,11 +6,17 @@ size_t keyPointIndex = 0;
 
 int main()
 {   
-    CVBasic cv;
     SIFT siftTrain, siftCamera;
     siftTrain.loadImage(siftTrain.image);
+
+    std::cout << "Hello" << std::endl;
+
     siftTrain.undistort(siftTrain.image, siftTrain.undistortImage);
-    siftTrain.siftExtract(siftTrain.undistortImage, siftTrain.img_with_keypoints, siftTrain.keypoints, siftTrain.descriptors, true);
+
+    std::cout << "Hello" << std::endl;
+
+    // siftTrain.siftExtract(siftTrain.undistortImage, siftTrain.img_with_keypoints, siftTrain.keypoints, siftTrain.descriptors, true);
+
 
     // cv::namedWindow("Camera Features", cv::WINDOW_NORMAL);
     // cv::namedWindow("match threshold", cv::WINDOW_NORMAL);
@@ -41,7 +47,7 @@ int main()
         //                             storage.newMatches, storage.storePickedKP, storage.oldSize,
         //                             false, false, true, false);
 
-        cv::imshow("Camera Features", siftTrain.img_with_keypoints);
+        cv::imshow("Camera Features", siftTrain.undistortImage);
 
         key = cv::waitKey(1);
     };

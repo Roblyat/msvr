@@ -188,7 +188,7 @@ void SIFT::updateSift()
 
         for (const auto &match : goodMatches)
         {
-            int queryIdx = match.queryIdx; // Index of the descriptor in the training set
+            size_t queryIdx = match.queryIdx; // Index of the descriptor in the training set
             if (queryIdx < descriptors.rows && queryIdx < keypoints.size())
             {
                 const cv::KeyPoint &kp = keypoints[queryIdx];
