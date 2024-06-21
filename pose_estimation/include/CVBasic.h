@@ -6,9 +6,8 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <fstream>
-#include "../include/classStorage.h"
 
-class CVBasic : public Storage
+class CVBasic
 {
 
 public:
@@ -24,6 +23,28 @@ public:
     int grayScale(const cv::Mat &image, cv::Mat &gray_scaled_image);
 
     void undistort(cv::Mat &image, cv::Mat &undistortImage);
+
+protected:
+    // Images and keypoints storage
+    cv::Mat image;
+    cv::Mat gray_scaled_image;
+    cv::Mat img_with_keypoints;
+    cv::Mat img_with_handpickedKeypoints;
+    cv::Mat undistortImage;
+    cv::Mat descriptors;
+    std::vector<cv::KeyPoint> keypoints;
+
+    cv::Mat cameraImage;
+    cv::Mat undistortCameraImage;
+    cv::Mat camera_img_with_keypoints;
+    cv::Mat cameraDescriptors;
+    std::vector<cv::KeyPoint> cameraKeypoints;
+    std::vector<cv::KeyPoint> storePickedKP;
+
+    std::vector<cv::DMatch> goodMatches;
+    std::vector<cv::DMatch> newMatches;
+    size_t oldSize;
+    cv::Mat img_matches;
 
 private:
     // image path

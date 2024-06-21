@@ -155,20 +155,20 @@ void SIFT::updateSift()
 
             matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
 
-            cv::drawMatches(img_with_keypoints, handpickedKeypoints, camera_img_with_keypoints, cameraKeypoints, newMatches, img_matches, cv::Scalar::all(-1), cv::Scalar::all(-1),
-                            std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+            //drawMatches
     }
     // ### bool to enable thresholding + parameters
-    void SIFT::drawMatches()
+    void SIFT::drawMatches(cv::Mat img_1, std::vector<cv::KeyPoint> keyPoints_1, cv::Mat img_2, std::vector<cv::KeyPoint> keyPoints_2,
+                            std::vector<cv::DMatch> matches_1_2, cv::Mat img_out)
     {
-        for (const auto &match : matches)
+        for (const auto &match : matches_1_2)
         {
             if (match.distance < (float)matchThreshold)
             { // Filter matches based on the distance. Lower means better.
                 goodMatches.push_back(match);
             }
         }
-        cv::drawMatches(img_with_keypoints, keypoints, camera_img_with_keypoints, cameraKeypoints, goodMatches, img_matches, 
+        cv::drawMatches(img_1, keyPoints_1, img_2, keyPoints_2, goodMatches, img_out, 
             cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
     }
 

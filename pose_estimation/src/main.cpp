@@ -1,9 +1,7 @@
 // main.cpp
-#include "../include/CVBasic.h"
-#include "../include/SIFT.h"
-#include "../include/Storage.h"
+#include "CVBasic.h"
+#include "SIFT.h"
 
-Storage storage;
 size_t keyPointIndex = 0;
 
 int main()

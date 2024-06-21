@@ -21,7 +21,8 @@ public:
 
     void bfmTrackbars(std::string window);
 
-    void drawMatches();
+    void drawMatches(cv::Mat Img_1, std::vector<cv::KeyPoint> keyPoints_1, cv::Mat img_2, std::vector<cv::KeyPoint> keyPoints_2,
+                            std::vector<cv::DMatch> matches_1_2, cv::Mat Img_out);
 
     void useHandpickedKeypoints(const cv::Mat &image, cv::Mat &img_with_handpickedKeypoints, std::vector<cv::KeyPoint> &storePickedKP);
 
