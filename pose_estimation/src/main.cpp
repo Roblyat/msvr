@@ -9,11 +9,7 @@ int main()
     SIFT siftTrain, siftCamera;
     siftTrain.loadImage();
 
-    std::cout << "Hello" << std::endl;
-
     siftTrain.undistort(siftTrain.image, siftTrain.undistortImage);
-
-    std::cout << "Hello" << std::endl;
 
     siftTrain.siftExtract(siftTrain.image, siftTrain.img_with_keypoints, siftTrain.keypoints, siftTrain.descriptors, true);
 
@@ -25,9 +21,10 @@ int main()
     cv::VideoCapture cap("/home/fhtw_user/msvr/pose_estimation/webcam/video2Mp4.mp4"); //"/home/fhtw_user/msvr/pose_estimation/webcam/videoMp4.mp4"
 
     while (key != 'd')
-    {
+    {   
+    
         // siftTrain.trackbars("train parameters");
-        // siftCamera.trackbars("camera parameters");
+        siftCamera.bfmTrackbars("match threshold");
 
         cap >> siftCamera.cameraImage;
         if (siftCamera.cameraImage.rows <= 0)
@@ -38,27 +35,16 @@ int main()
 
         siftCamera.undistort(siftCamera.cameraImage, siftCamera.undistortCameraImage);
 
-        siftCamera.siftExtract(siftCamera.undistortCameraImage, siftCamera.camera_img_with_keypoints, siftCamera.cameraKeypoints, siftCamera.cameraDescriptors, true);
+        siftCamera.siftExtract(siftCamera.undistortCameraImage, siftCamera.camera_img_with_keypoints, siftCamera.cameraKeypoints, siftCamera.cameraDescriptors, false);
+       
+        // cv::imshow("Input keyPoints", siftTrain.img_with_keypoints);
+        // cv::imshow("Camera keyPoints", siftCamera.camera_img_with_keypoints);
 
-        // siftCamera.matchDescriptors(storage.descriptors, storage.cameraDescriptors,
-        //                             storage.goodMatches, storage.keypoints, storage.cameraKeypoints, storage.img_with_keypoints,
-        //                             storage.camera_img_with_keypoints, storage.img_matches, storage.img_with_handpickedKeypoints,
-        //                             storage.newMatches, storage.storePickedKP, storage.oldSize,
-        //                             false, false, true, false);
-
-        cv::imshow("input keyPoints", siftTrain.img_with_keypoints);
-
-        std::cout << "got to here" << std::endl;
-
-        cv::imshow("Camera keyPoints", siftCamera.camera_img_with_keypoints);
-
-        siftCamera.matchDescriptors();
-
-        std::cout << "got here" << std::endl;
+        siftCamera.matchDescriptors(siftTrain.descriptors);
 
         siftCamera.drawMatches(siftTrain.img_with_keypoints, siftTrain.keypoints, siftCamera.camera_img_with_keypoints, siftCamera.cameraKeypoints, siftCamera.matches, siftCamera.img_matches);
-
-        std::cout << "got here" << std::endl;
+        
+        siftCamera.safeActiveSet(siftTrain.descriptors);
 
         cv::imshow("Matches", siftCamera.img_matches);
 

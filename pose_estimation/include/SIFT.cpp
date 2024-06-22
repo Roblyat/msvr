@@ -4,7 +4,6 @@
 SIFT::SIFT()
 {
     updateSift();
-    matcher.create(cv::NORM_L2);
 }
 
 void SIFT::updateSift()
@@ -44,10 +43,9 @@ void SIFT::bfmTrackbars(std::string window)
 
 void SIFT::siftExtract(cv::Mat &image, cv::Mat &image_with_keypoints, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, bool saveDescriptors)
 {
-    std::cout << "Hello Sift" << std::endl;
-
     sift->detectAndCompute(image, cv::noArray(), keypoints, descriptors);
-    std::cout << "Hello detector" << std::endl;
+
+    descriptors.convertTo(descriptors, CV_32F);
 
     if (saveDescriptors) {
         saveCSV();
@@ -56,6 +54,7 @@ void SIFT::siftExtract(cv::Mat &image, cv::Mat &image_with_keypoints, std::vecto
     cv::drawKeypoints(image, keypoints, image_with_keypoints, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
     cv::imwrite("/home/fhtw_user/msvr/pose_estimation/sift_features.jpg", image_with_keypoints);
+
 }
 
 void SIFT::saveCSV()
@@ -87,6 +86,196 @@ void SIFT::saveCSV()
     else
     {
         std::cerr << "Failed saving descriptors" << std::endl;
+    }
+}
+
+void SIFT::drawMatches(cv::Mat img_1, std::vector<cv::KeyPoint> keyPoints_1, cv::Mat img_2, std::vector<cv::KeyPoint> keyPoints_2,
+                       std::vector<cv::DMatch> matches_1_2, cv::Mat &img_out)
+{
+    goodMatches.clear();
+    for (const auto &match : matches_1_2)
+    {
+        if (match.distance < (float)matchThreshold)
+        {
+            goodMatches.push_back(match);
+        }
+    }
+
+    std::cout << "Good matches: " << goodMatches.size() << std::endl;
+    cv::drawMatches(img_1, keyPoints_1, img_2, keyPoints_2, goodMatches, img_out, 
+        cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+}
+
+void SIFT::matchDescriptors(cv::Mat &descriptors)
+{   
+    std::cout << "Train Descriptors" << descriptors.size() << std::endl;
+    std::cout << "Camera Descriptors" << cameraDescriptors.size() << std::endl;
+
+    cv::Mat descriptors_nI = descriptors.colRange(0, descriptors.cols);
+    cv::Mat cameraDescriptors_nI = cameraDescriptors.colRange(0, cameraDescriptors.cols);
+
+    // Initialize the matcher with the correct norm type
+    cv::BFMatcher matcher(cv::NORM_L2);
+    matcher.match(descriptors, cameraDescriptors, matches);
+
+    // Sort the matches based on distance
+    std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b) {
+        return a.distance < b.distance;
+    });
+
+    std::cout << "Matches: " << matches.size() << std::endl;
+}
+
+void SIFT::safeActiveSet(cv::Mat &descriptors)
+{
+    std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
+
+    // Write header row
+    outFile << "Index,X,Y,Size,Angle,Response,Octave,ClassID";
+    for (int i = 0; i < 128; i++)
+    { // Assuming you have 128 descriptors
+        outFile << ",D" << i;
+    }
+    outFile << "\n";
+
+    for (const auto &match : goodMatches)
+    {
+        size_t queryIdx = match.queryIdx; // Index of the descriptor in the training set
+        if (queryIdx < descriptors.rows && queryIdx < keypoints.size())
+        {
+            const cv::KeyPoint &kp = keypoints[queryIdx];
+            const cv::Mat descriptor = descriptors.row(queryIdx);
+
+            // Write keypoint data
+            outFile << queryIdx << "," << kp.pt.x << "," << kp.pt.y << "," << kp.size << ","
+                    << kp.angle << "," << kp.response << "," << kp.octave << "," << kp.class_id;
+
+            // Write descriptor data
+            for (int j = 0; j < descriptor.cols; j++)
+            {
+                outFile << "," << descriptor.at<float>(j);
+            }
+            outFile << "\n";
+        }
+    }
+    std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
+    outFile.close();
+
+    // std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
+    // goodMatches.clear();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void SIFT::showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
+{
+    if (keypointIndex < keypoints.size())
+    {
+        const auto &kp = keypoints[keypointIndex];
+        cv::putText(img_with_keypoints, std::to_string(keypointIndex), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.25, cv::Scalar(0, 255, 0), 1);
     }
 }
 
@@ -159,74 +348,4 @@ void SIFT::useHandpickedKeypoints(const cv::Mat &image, cv::Mat &img_with_handpi
         // matcher.match(handpickedDescriptors, cameraDescriptors, newMatches);
 
         // drawMatches();
-}
-// ### bool to enable thresholding + parameters
-void SIFT::drawMatches(cv::Mat img_1, std::vector<cv::KeyPoint> keyPoints_1, cv::Mat img_2, std::vector<cv::KeyPoint> keyPoints_2,
-                        std::vector<cv::DMatch> matches_1_2, cv::Mat img_out)
-{
-    for (const auto &match : matches_1_2)
-    {
-        if (match.distance < (float)matchThreshold)
-        { // Filter matches based on the distance. Lower means better.
-            goodMatches.push_back(match);
-        }
-    }
-    cv::drawMatches(img_1, keyPoints_1, img_2, keyPoints_2, goodMatches, img_out, 
-        cv::Scalar::all(-1), cv::Scalar::all(-1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-}
-
-void SIFT::safeActiveSet()
-{
-    std::ofstream outFile("/home/fhtw_user/msvr/pose_estimation/activeSet.csv");
-
-    // Write header row
-    outFile << "Index,X,Y,Size,Angle,Response,Octave,ClassID";
-    for (int i = 0; i < 128; i++)
-    { // Assuming you have 128 descriptors
-        outFile << ",D" << i;
-    }
-    outFile << "\n";
-
-    for (const auto &match : goodMatches)
-    {
-        size_t queryIdx = match.queryIdx; // Index of the descriptor in the training set
-        if (queryIdx < descriptors.rows && queryIdx < keypoints.size())
-        {
-            const cv::KeyPoint &kp = keypoints[queryIdx];
-            const cv::Mat descriptor = descriptors.row(queryIdx);
-
-            // Write keypoint data
-            outFile << queryIdx << "," << kp.pt.x << "," << kp.pt.y << "," << kp.size << ","
-                    << kp.angle << "," << kp.response << "," << kp.octave << "," << kp.class_id;
-
-            // Write descriptor data
-            for (int j = 0; j < descriptor.cols; j++)
-            {
-                outFile << "," << descriptor.at<float>(j);
-            }
-            outFile << "\n";
-        }
-    }
-    std::cout << "Saved " << goodMatches.size() << " good match descriptors to 'activeSet.csv'." << std::endl;
-    outFile.close();
-
-    // std::cout << "Total matches: " << matches.size() << ", Good matches: " << goodMatches.size() << std::endl;
-    // goodMatches.clear();
-}
-
-void SIFT::matchDescriptors()
-{      
-    matcher.match(descriptors, cameraDescriptors , matches);
-
-    std::sort(matches.begin(), matches.end(), [](const cv::DMatch &a, const cv::DMatch &b)
-              { return a.distance < b.distance; });
-}
-
-void SIFT::showKeyNumbers(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img_with_keypoints, size_t keypointIndex)
-{
-    if (keypointIndex < keypoints.size())
-    {
-        const auto &kp = keypoints[keypointIndex];
-        cv::putText(img_with_keypoints, std::to_string(keypointIndex), kp.pt, cv::FONT_HERSHEY_SIMPLEX, 0.25, cv::Scalar(0, 255, 0), 1);
-    }
 }
