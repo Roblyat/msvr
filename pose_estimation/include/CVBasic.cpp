@@ -1,11 +1,11 @@
 #include "CVBasic.h"
 
     // load image & use clone to process
-    int CVBasic::loadImage(cv::Mat &storage_image)
+    int CVBasic::loadImage()
     {
-        storage_image = cv::imread(imgPath).clone();
+        image = cv::imread(imgPath).clone();
 
-        if (storage_image.empty())
+        if (image.empty())
             std::cerr << "loading image failed." << std::endl;
 
         return 0;

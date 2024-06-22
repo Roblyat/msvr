@@ -18,7 +18,7 @@ public:
 
     // methods
     // load image & use clone to process
-    int loadImage(cv::Mat &storage_image);
+    int loadImage();
 
     int grayScale(const cv::Mat &image, cv::Mat &gray_scaled_image);
 
@@ -41,7 +41,7 @@ public:
     std::vector<cv::KeyPoint> storePickedKP;
 
     std::vector<cv::DMatch> goodMatches;
-    std::vector<cv::DMatch> newMatches;
+    std::vector<cv::DMatch> matches;
     size_t oldSize;
     cv::Mat img_matches;
 

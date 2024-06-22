@@ -17,7 +17,9 @@ public:
 
     void siftTrackbars(std::string window);
 
-    void siftExtract(const cv::Mat &image, cv::Mat &img_with_keypoints, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, bool saveDescriptors);
+    void siftExtract(cv::Mat &image, cv::Mat &image_with_keypoints, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors, bool saveDescriptors);
+
+    void saveCSV();
 
     void bfmTrackbars(std::string window);
 
