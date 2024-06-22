@@ -37,7 +37,7 @@ public:
 
 private:
     // Image path
-    const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/webcam/tp6.jpg";
+    const std::string imgPath = "/home/fhtw_user/msvr/pose_estimation/exam/tp6.jpg";
 
     // Camera matrix (intrinsic parameters)
     cv::Mat cameraMatrix = (cv::Mat_<double>(3, 3) << 913.086760, 0.000000, 624.176299,

@@ -18,7 +18,7 @@ int main()
     siftTrain.siftExtract(true);
 
     // Open a video file for processing
-    cv::VideoCapture cap("/home/fhtw_user/msvr/pose_estimation/webcam/video2Mp4.mp4"); // Change the path if necessary
+    cv::VideoCapture cap("/home/fhtw_user/msvr/pose_estimation/exam/video2Mp4.mp4"); // Change the path if necessary
 
     if (!cap.isOpened()) {
         std::cerr << "Error opening video file" << std::endl;
